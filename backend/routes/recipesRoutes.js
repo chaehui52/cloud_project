@@ -13,7 +13,6 @@ const {
   uploadImageController,
   saveFolderController,
   deleteFolderItemController
-//   toggleLikeController
 } = require('../controllers/recipesController');
 
 const storage = multer.diskStorage({
@@ -34,15 +33,12 @@ router.get('/detail', detailRecipeController);
 router.get('/level', levelRecipeController);
 router.post('/add', addRecipeController); 
 router.post('/:id/view', increaseViewCountController);
-// router.post('/:id/:/userId/like', toggleLikeController);
 router.post('/upload-image', upload.single('image'), uploadImageController);
 
-//folder
 router.post('/save', saveFolderController);
 router.post('/folder/deleteItem', deleteFolderItemController);
 
 
-// router.post('/addFolder', addFodlerController);
 
 
 module.exports = router;

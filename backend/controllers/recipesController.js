@@ -41,7 +41,6 @@ const detailRecipeController = async (req, res) => {
 }
   try {
     const recipes = await recipesModel.detailRecipe(id);
-    // console.log('검색된 레시피 수:', recipes.length);
     res.json(recipes);
   }catch (error) {
     console.error('err recipes', error);
@@ -151,24 +150,6 @@ const deleteFolderItemController = async (req, res) => {
 };
 
 
-// const addFodlerController = async (req, res) => {
-//   const { userId, folder_name } = req.body;
-//   console.log('사람,폴더,레시피:', req.body);
-
-//   if (!query) {
-//     return res.status(400).json({ error: "검색어가 없습니다." });
-//   }
-//   try {
-//     const recipes = await recipesModel.addFodler(userId, folder_name );
-//     console.log('검색된 레시피 수:', recipes.length);
-//     res.json(recipes);
-//   } catch (error) {
-//     console.error('err recipes', error);
-//     res.status(500).json({ error: "server error" });
-//   }
-// };
-
-
 
 
 
@@ -181,9 +162,7 @@ module.exports = {
   levelRecipeController,
   increaseViewCountController,
   uploadImageController,
-  // toggleLikeController,
   saveFolderController,
-  // addFodlerController
   deleteFolderItemController
  };
 

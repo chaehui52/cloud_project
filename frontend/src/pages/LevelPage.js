@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom'; 
-
+import { Link } from 'react-router-dom';
 
 function LevelPage() {
   const navigate = useNavigate();
@@ -11,7 +10,7 @@ function LevelPage() {
 
   useEffect(() => {
     console.log('현재 level:', level);
-    fetch(`http://localhost:5000/recipes/level?level=${encodeURIComponent(level)}`)
+    fetch(`http://118.216.49.98:5000/recipes/level?level=${encodeURIComponent(level)}`)
       .then(res => res.json())
       .then(data => {
         console.log('받은 데이터:', data);
@@ -26,30 +25,29 @@ function LevelPage() {
 
   return (
     <div>
-      <div
-      style={{display: 'flex'}}>
-
-         <Link 
-                  to="/home" 
-                  style={{ 
-                    paddingLeft: '20px',
-                    paddingTop:'20px',
-                    background: 'none', 
-                    border: 'none', 
-                    color: '#34C56E', 
-                    fontSize: '40px', 
-                    cursor: 'pointer', 
-                    fontWeight: 'bold', 
-                    textDecoration: 'none' 
-                  }}
-                >
-                  쉐프노트
-                </Link>
-      <h2 style={{ padding: 20 }}>{level} 페이지</h2>
+      <div style={{ display: 'flex' }}>
+        <Link
+          to="/home"
+          style={{
+            paddingLeft: '20px',
+            paddingTop: '20px',
+            background: 'none',
+            border: 'none',
+            color: '#34C56E',
+            fontSize: '40px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            textDecoration: 'none',
+          }}
+        >
+          쉐프노트
+        </Link>
+        <h2 style={{ padding: 20 }}>{level} 페이지</h2>
       </div>
-          
 
-      {recipes.length === 0 ? (
+      {loading ? (
+        <p style={{ paddingLeft: 20 }}>로딩중...</p>
+      ) : recipes.length === 0 ? (
         <p style={{ paddingLeft: 20 }}>작성한 레시피가 없습니다.</p>
       ) : (
         <ul
@@ -61,9 +59,9 @@ function LevelPage() {
             alignItems: 'center',
           }}
         >
-          {recipes.map((recipe, index) => (
+          {recipes.map(recipe => (
             <li
-              key={index}
+              key={recipe.id}
               onClick={() => navigate(`/detail/${recipe.id}`)}
               style={{
                 cursor: 'pointer',
@@ -78,8 +76,8 @@ function LevelPage() {
                 transition: 'transform 0.2s',
                 listStyle: 'none',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
             >
               <div
                 style={{
@@ -91,7 +89,6 @@ function LevelPage() {
                 }}
               ></div>
 
-              
               <div
                 style={{
                   display: 'flex',
@@ -137,6 +134,11 @@ function LevelPage() {
           ))}
         </ul>
       )}
+
+      {/* 
+      webpack-dev-server 경고 관련:
+      react-scripts 업그레이드로 해결 권장
+      */}
     </div>
   );
 }

@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken'); // 토큰 발급용
  
  const myPageController = async (req, res) => {
     try {
-        const userId = req.user.id;  // 미들웨어에서 세팅한 user id
+        const userId = req.user.id; 
         const userInfo = await userModel.myPage(userId);
 
         console.log("con");

@@ -1,135 +1,218 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../components/auth'; 
-import { GiFileCabinet } from "react-icons/gi";
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getCurrentUser } from '../components/auth';
 
+function MyFolderDetailPage() {
+    const user = getCurrentUser();
+    const { userId, folderName } = useParams();
+    const decodedFolderName = decodeURIComponent(folderName || '');
+    const navigate = useNavigate();
 
-function MyFolderPage() {
-  const user = getCurrentUser();
-  const navigate = useNavigate();
+    const [recipes, setRecipes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  const [folder, setFolder] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+    useEffect(() => {
+        if (!userId) {
+            setError('로그인이 필요합니다.');
+            setLoading(false);
+            return;
+        }
 
-  useEffect(() => {
-    if (!user || !user.userId) {
-      setError('로그인이 필요합니다.');
-      setLoading(false);
-      return;
+        setLoading(true);
+        fetch(`http://118.216.49.98:5000/my/folders/detail?userId=${userId}&folderName=${decodedFolderName}`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error('서버 응답 오류');
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data.message) {
+                    setError(data.message);
+                    setRecipes([]);
+                } else {
+                    setRecipes(data);
+                    setError(null);
+                }
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching recipes:', error);
+                setError('레시피를 불러오는 데 실패했습니다.');
+                setLoading(false);
+            });
+    }, [userId, decodedFolderName]);
+
+    const deleteFolderItem = async (recipeId) => {
+        try {
+            const res = await fetch(`http://118.216.49.98:5000/recipes/folder/deleteItem`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: user.userId,
+                    folder_name: folderName,
+                    recipeId,
+                }),
+            });
+            const data = await res.json();
+            console.log('폴더 내 아이템 삭제 성공:', data);
+            alert('삭제 성공!');
+            window.location.reload();
+        } catch (err) {
+            console.error('레시피 저장 실패:', err);
+            alert('삭제 실패했습니다.');
+        }
+    };
+
+    if (loading) {
+        return <div style={{ padding: 20 }}>로딩 중...</div>;
     }
 
-    fetch(`http://localhost:5000/my/folders?host=${user.userId}`)
-      .then(res => {
-        if (!res.ok) {
-          throw new Error('서버 응답 오류');
-        }
-        return res.json();
-      })
-      .then(data => {
-        console.log('받은 폴더 데이터:', data);
-        if (data.message) {
-          setError(data.message);
-        } else {
-          setFolder(data);
-        }
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching folders:', error);
-        setError('폴더를 불러오는 데 실패했습니다.');
-        setLoading(false);
-      });
-  }, [user.userId]);
+    return (
+        <div>
+            <div style={{ display: 'flex' }}>
+                <Link
+                    to="/home"
+                    style={{
+                        paddingLeft: '20px',
+                        paddingTop: '20px',
+                        background: 'none',
+                        border: 'none',
+                        color: '#34C56E',
+                        fontSize: '40px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold',
+                        textDecoration: 'none',
+                    }}
+                >
+                    쉐프노트
+                </Link>
+                <h3 style={{ padding: 20, paddingTop: 25 }}>
+                    {user.name} {folderName}에 저장한 레시피
+                </h3>
+            </div>
 
-  if (loading) {
-    return <div style={{ padding: 20 }}>로딩 중...</div>;
-  }
+            {error && <p style={{ color: 'red', paddingLeft: 20 }}>{error}</p>}
 
-  return (
-    <div>
-      {/* 상단 네비게이션 */}
-      <div style={{ display: 'flex' }}>
-        <Link
-          to="/home"
-          style={{
-            paddingLeft: '20px',
-            paddingTop: '20px',
-            background: 'none',
-            border: 'none',
-            color: '#34C56E',
-            fontSize: '40px',
-            cursor: 'pointer',
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          }}
-        >
-          쉐프노트
-        </Link>
-        <h3 style={{ padding: 20, paddingTop: 25 }}>
-          {user.name}쉐프님 보유한 레시피 폴더
-        </h3>
-      </div>
+            {recipes.length === 0 ? (
+                <p style={{ paddingLeft: 20 }}>작성한 레시피가 없습니다.</p>
+            ) : (
+                <ul
+                    style={{
+                        padding: 0,
+                        margin: 0,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    {recipes.map(recipe => (
+                        <li
+                            key={recipe.id}
+                            onClick={() => navigate(`/detail/${recipe.id}`)}
+                            style={{
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                marginBottom: '20px',
+                                padding: '15px',
+                                borderRadius: '10px',
+                                backgroundColor: '#fff',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                                width: '60%',
+                                transition: 'transform 0.2s',
+                                listStyle: 'none',
+                            }}
+                            onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.02)')}
+                            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+                        >
+                            <div
+                                style={{
+                                    width: '5px',
+                                    alignSelf: 'stretch',
+                                    backgroundColor: '#34C56E',
+                                    marginRight: '10px',
+                                    borderRadius: '2px',
+                                }}
+                            ></div>
 
-      {}
-      {error && (
-        <p style={{ color: 'red', paddingLeft: 20 }}>{error}</p>
-      )}
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '60px',
+                                    marginRight: '15px',
+                                    color: '#686868',
+                                    fontSize: '14px',
+                                    userSelect: 'none',
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        marginBottom: '8px',
+                                        textAlign: 'center',
+                                        fontWeight: 'bold',
+                                        width: '150px',
+                                    }}
+                                >
+                                    <span style={{ marginRight: '10px' }}>조회수</span>
+                                    {recipe.viewCount || 0}
+                                </div>
+                                <div style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                                    <span style={{ marginRight: '10px', color: 'red' }}>❤️</span>
+                                    {recipe.likes || 0}
+                                </div>
+                            </div>
 
-      {}
-      {folder.length === 0 ? (
-        <p style={{ paddingLeft: 20 }}>생성된 폴더가 없습니다.</p>
-      ) : (
-        <ul
-          style={{
-            padding: 0,
-            margin: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          {folder.map((folderItem, index) => (
-             console.log("folderItem:", folderItem),
-            <li
-              key={index}
-               onClick={() =>
-                    navigate(`/folder/${user.userId}/${encodeURIComponent(folderItem.folder_name)}`)
-                    }
-              style={{
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
-                padding: '15px',
-                borderRadius: '30px',
-                backgroundColor: '#fff',
-                 border: '2px solid #34C56E',
-                // boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                width: '60%',
-                transition: 'transform 0.2s',
-                listStyle: 'none',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.02)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-            >
-              {}
-               <i style={{ fontSize: "32px", color: "#34C56E", marginRight: '10px' }}/>
+                            <div style={{ flex: 1, marginLeft: '30px' }}>
+                                <h3 style={{ margin: '0 0 8px 0' }}>{recipe.title}</h3>
+                                <p style={{ margin: 0 }}>{recipe.description}</p>
+                            </div>
 
-              {}
-              <div
-                style={{
-                  flex: 1,
-                }}
-              >
-                <h3 style={{ margin: '0 0 8px 0' }}>{folderItem.folder_name}</h3>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+                            {recipe.image_url && (
+                                <img
+                                    src={recipe.image_url}
+                                    alt={recipe.title}
+                                    style={{
+                                        width: '200px',
+                                        height: '100px',
+                                        marginLeft: '20px',
+                                        borderRadius: '8px',
+                                        objectFit: 'cover',
+                                    }}
+                                />
+                            )}
+                            <button
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    deleteFolderItem(recipe.id);
+                                }}
+                                style={{
+                                    backgroundColor: '#ff4d4f',
+                                    color: '#fff',
+                                    border: 'none',
+                                    borderRadius: '5px',
+                                    padding: '8px 12px',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.2s',
+                                    marginLeft: '30px',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#e04344')}
+                                onMouseLeave={e => (e.currentTarget.style.backgroundColor = '#ff4d4f')}
+                            >
+                                삭제
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
 }
 
-export default MyFolderPage;
+export default MyFolderDetailPage;
+

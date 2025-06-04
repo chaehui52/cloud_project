@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import axios from 'axios';
 
 function SignupPage() {
@@ -10,14 +11,14 @@ function SignupPage() {
 
   const handleSignup = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/user/signup', {
+      const response = await axios.post('http://118.216.49.98:5000/user/signup', {
         userId: id,
         password: pw,
         name: name,
       });
 
       alert(response.data.message);
-      navigate('/login'); // 회원가입 성공 후 로그인 페이지로 이동
+      navigate('/login');
     } catch (err) {
       console.error(err);
       alert(err.response?.data?.message || '회원가입 실패');

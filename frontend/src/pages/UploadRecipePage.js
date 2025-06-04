@@ -42,7 +42,7 @@ const UploadRecipePage = () => {
     data.append('image', file);
 
     try {
-      const response = await fetch('http://localhost:5000/recipes/upload-image', {
+      const response = await fetch('http://118.216.49.98:5000/recipes/upload-image', {
         method: 'POST',
         body: data,
       });
@@ -71,7 +71,7 @@ const UploadRecipePage = () => {
     }
 
     try {
-      const res = await axios.post('http://localhost:5000/recipes/add', formData);
+      const res = await axios.post('http://118.216.49.98:5000/recipes/add', formData);
       alert('레시피 업로드 성공');
       navigate('/home')
     } catch (err) {

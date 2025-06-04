@@ -77,13 +77,6 @@ const deleteFolderItem = async (userId, folder_name, recipeId) => {
 
 
 
-
-
-// const getById = async (id) => {
-//   const result = await pool.query('SELECT * FROM recipes WHERE id = $1', [id]);
-//   return result.rows[0];  // 단일 객체 리턴
-// };
-
 module.exports = { 
   getAllRecipes,
   getLatestRecipes,
@@ -92,8 +85,6 @@ module.exports = {
   addRecipe,
   levelRecipe,
   increaseViewCount,
-//   toggleLike,
   saveFolder,
   deleteFolderItem
-//   addFodler
 };

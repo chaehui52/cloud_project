@@ -10,8 +10,8 @@ const {
 
 
 router.get('/mypage', authMiddleware, myPageController);
-router.post('/login', loginController);
-router.post('/signup', signupController);
+router.post('/login', loginController); //지피티 도움
+router.post('/signup', signupController); //지피티 도움
 router.get('/test',test);
 
 

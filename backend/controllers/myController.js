@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 
 const myRecipesController = async (req, res) => {
-  const writer = req.query.id; // 쿼리에서 작성자 ID 받아옴
+  const writer = req.query.id; 
   console.log("요청된 작성자 ID:", writer);
 
   if (!writer) {
